@@ -51,10 +51,6 @@ void NoximRouter::rxProcess(){
 					// Store the incoming flit in the circular buffer
 					buffer[i].Push(received_flit);
 
-
-//					if(received_flit.mid_id == local_id)
-//						received_flit.arr_mid = true;
-
 					routed_flits[i]++;
 					
 					if( received_flit.routing_f != ROUTING_WEST_FIRST )
@@ -94,44 +90,6 @@ void NoximRouter::txProcess(){
     }
 	else {
 		// 1st phase: Reservation
-	//if(getCurrentCycleNum()%RST == 0){
-/*
-	for (int j = 0; j < DIRECTIONS + 2; j++) {
-                        int i = (start_from_port + j) % (DIRECTIONS + 2);
-                        int o;
-                        if (!buffer[i].IsEmpty()) {
-                                NoximFlit flit = buffer[i].Front();
-                                if (flit.flit_type == FLIT_TYPE_HEAD && flit.beltway == true) {
-
-                                        NoximRouteData route_data;
-                                        route_data.current_id = local_id;
-                                        route_data.src_id     = (flit.arr_mid)?flit.mid_id:flit.src_id;
-                                        route_data.dst_id     = (flit.arr_mid)?flit.dst_id:flit.mid_id;
-                                        route_data.dir_in     = i;
-                                        route_data.routing    = flit.routing_f;
-                                        route_data.DW_layer   = flit.DW_layer;
-                                        route_data.arr_mid    = flit.arr_mid;
-
-                                        o = route(route_data);
-                                        if (reservation_table.isAvailable(o) && (getCurrentCycleNum()%DFS)<(4-RST))// && packet_num[i] > 0
-                                         {
-                                                //if(reservation_table.getOutputPort(i) != o && reservation_table.getOutputPort(i) != NOT_RESERVED)
-                                                reservation_table.reserve(i, o);
-                                                if (NoximGlobalParams::verbose_mode > VERBOSE_OFF ) {
-                                                        cout << getCurrentCycleNum()
-                                                        << ": Router[" << local_id
-                                                        << "], Input[" << i << "] (" << buffer[i].
-                                                        Size() << " flits)" << ", reserved Output["
-                                                        << o << "], flit: " << flit << endl;
-                                                }
-                                                stats.power.ArbiterNControl();
-                                        }
-                                }
-                        }
-                }
-
-*/
-
 		for (int j = 0; j < DIRECTIONS + 2; j++) {
 			int i = (start_from_port + j) % (DIRECTIONS + 2);
 			int o;
@@ -167,41 +125,7 @@ void NoximRouter::txProcess(){
 					if (NoximGlobalParams::verbose_mode > VERBOSE_LOW ) 
 						cout<<"Before route:"<<flit;
 					// Dynamic Beltway Adjustment
-
-//					if(waiting[i] > 100){
-//						o = Detour(route_data, i, waiting[i]);
-//						if(reservation_table.getOutputPort(i) != NOT_RESERVED)
-//							if(o!= reservation_table.getOutputPort(i))
-//								reservation_table.release(reservation_table.getOutputPort(i));
-//					}
-					//cout<<"o:"<<o<<endl;}
-//					else{
-						o = route(route_data);/*
-						if(reservation_table.getOutputPort(i) != NOT_RESERVED)
-                                                        if(o!= reservation_table.getOutputPort(i))
-                                                                reservation_table.release(reservation_table.getOutputPort(i));*/
-//					}
-					//if( flit.beltway && !flit.arr_mid)
-					//	DBA( o,&buffer[i].Front());//Beltway packet, and in 1st phase
-					//
-
-					if (reservation_table.isAvailable(o) && (getCurrentCycleNum()%DFS)<(8-RST))// && packet_num[i] > 0
-					 {     
-						//if(reservation_table.getOutputPort(i) != o && reservation_table.getOutputPort(i) != NOT_RESERVED)
-						reservation_table.reserve(i, o);
-						if (NoximGlobalParams::verbose_mode > VERBOSE_OFF ) {
-							cout << getCurrentCycleNum()
-							<< ": Router[" << local_id
-							<< "], Input[" << i << "] (" << buffer[i].
-							Size() << " flits)" << ", reserved Output["
-							<< o << "], flit: " << flit << endl;
-						}
-						stats.power.ArbiterNControl();	
-					}/*
-					else if(waiting[i] > )
-					{
-						o = Detour(route_data, i, waiting[i]);
-					}*/
+						o = route(route_data);
 				}
 			}
 		}
@@ -240,8 +164,6 @@ void NoximRouter::txProcess(){
 						if (flit.flit_type == FLIT_TYPE_TAIL)
 							reservation_table.release(o);
 											
-						//if ( (flit.flit_type == FLIT_TYPE_HEAD) && ( flit.src_id == 53) && ( flit.dst_id == 25 ) )
-						// if ( ( flit.src_id == 14) && ( flit.dst_id == 49 ) )
 							_total_waiting += getCurrentCycleNum() - flit.waiting_cnt;
 
 						if (flit.flit_type == FLIT_TYPE_HEAD)
@@ -471,16 +393,7 @@ int NoximRouter::route(const NoximRouteData & route_data)
         NoximCoord position = id2Coord(local_id); 
 
 	if( candidate_channels.size() == 0){
-		/*
-		cout<<"no any candidate channels"<<endl;
-		if(!on_off_neighbor[DIRECTION_NORTH] && position.y > 0)//if the direction is not throttled
-			candidate_channels.push_back(DIRECTION_NORTH);
-		if(!on_off_neighbor[DIRECTION_SOUTH] && position.y < 7)//if the direction is not throttled
-                        candidate_channels.push_back(DIRECTION_SOUTH);
-		if(!on_off_neighbor[DIRECTION_EAST] && position.x < 7)//if the direction is not throttled
-                        candidate_channels.push_back(DIRECTION_EAST);
-		if(!on_off_neighbor[DIRECTION_WEST] && position.x > 0)//if the direction is not throttled
-                        candidate_channels.push_back(DIRECTION_WEST);*/
+
 		if(!on_off_neighbor[DIRECTION_DOWN]  && position.z < 3)//if the direction is not throttled
 			candidate_channels.push_back(DIRECTION_DOWN);
 	}
@@ -938,14 +851,7 @@ int NoximRouter::selectionThermal(const vector<int>& directions, const NoximRout
                 thermal_delay0 = buf_neighbor[directions[0]][directions[0]].read() + BCT0;
                 thermal_delay1 = buf_neighbor[directions[1]][directions[1]].read() + BCT1;
 		thermal_delay2 = buf_neighbor[directions[2]][directions[2]].read() + BCT2;
-/*
-		if(thermal_delay2 < thermal_delay1 && thermal_delay2 < thermal_delay0)
-                        return directions[2];
-                else if(thermal_delay1 < thermal_delay0 && thermal_delay1 < thermal_delay2)
-                        return directions[1];
-                else
-                        return directions[0];
-*/
+
 		//WF3D offer zero or three path
 		if(directions[0]==DIRECTION_NORTH && directions[1]==DIRECTION_EAST && directions[2]==DIRECTION_DOWN){
 			thermal_delay0 += buf_neighbor[DIRECTION_EAST][directions[0]].read()/5 + buf_neighbor[DIRECTION_WEST][directions[0]].read()/5 + buf_neighbor[DIRECTION_DOWN][directions[0]].read()/5 + buf_neighbor[DIRECTION_EAST][directions[0]].read()/5 + buf_neighbor[DIRECTION_SOUTH][directions[0]].read()/5 + buf_neighbor[DIRECTION_DOWN][directions[0]].read()/5 + buf_neighbor[DIRECTION_DOWN][directions[0]].read()/6 + buf_neighbor[DIRECTION_EAST][directions[0]].read()/6 + buf_neighbor[DIRECTION_WEST][directions[0]].read()/6 + buf_neighbor[DIRECTION_SOUTH][directions[0]].read()/6 + (buf_neighbor[DIRECTION_SEMI_LOCAL][directions[0]].read()+buf_neighbor[DIRECTION_LOCAL][directions[0]].read())*17/30;
@@ -1370,13 +1276,13 @@ vector<int> NoximRouter::routingOddEven_3D (const NoximCoord& current,
   return directions;
 }
 //=============================Odd Even + Downward==========================
-//ÂÂª©¡A¦Y¥þ°ìªºDownward tag
+//Ã‚Ã‚ÂªÂ©Â¡AÂ¦YÂ¥Ã¾Â°Ã¬ÂªÂºDownward tag
 
 vector<int> NoximRouter::routingOddEven_Downward (const NoximCoord& current, 
 				    const NoximCoord& source, const NoximCoord& destination, const NoximRouteData& route_data)
 {
 	vector<int> directions;
-	int layer;	//ªí¥Ü¦¹packetÀ³¸Ó¦b­þ­Ólayer°µXY¶Ç»¼
+	int layer;	//ÂªÃ­Â¥ÃœÂ¦Â¹packetÃ€Â³Â¸Ã“Â¦bÂ­Ã¾Â­Ã“layerÂ°ÂµXYÂ¶Ã‡Â»Â¼
 	/*int down_level = NoximGlobalParams::down_level;
 	if( (source.z + down_level)> NoximGlobalParams::mesh_dim_z-1)
 		layer = NoximGlobalParams::mesh_dim_z-1;
@@ -1386,7 +1292,7 @@ vector<int> NoximRouter::routingOddEven_Downward (const NoximCoord& current,
 	if(current.z < layer && (current.x != destination.x || current.y != destination.y) )  
 	{
 
-		if(current.z == destination.z && ( (current.x-destination.x== 1 && current.y==destination.y)	//X or Y¤è¦V¤W¥u¬Û¶Z¤@®æ®É´Nª½±µ¹L¥h,¤£DW
+		if(current.z == destination.z && ( (current.x-destination.x== 1 && current.y==destination.y)	//X or YÂ¤Ã¨Â¦VÂ¤WÂ¥uÂ¬Ã›Â¶ZÂ¤@Â®Ã¦Â®Ã‰Â´NÂªÂ½Â±ÂµÂ¹LÂ¥h,Â¤Â£DW
 										||(current.x-destination.x==-1 && current.y==destination.y) 
 										||(current.y-destination.y== 1 && current.x==destination.x) 
 										||(current.y-destination.y==-1 && current.x==destination.x) ))
@@ -1398,15 +1304,15 @@ vector<int> NoximRouter::routingOddEven_Downward (const NoximCoord& current,
 					directions.push_back(DIRECTION_DOWN);
 		}
 	}
-	else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//¦b©³³¡¥Hxy routing¶Ç
+	else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//Â¦bÂ©Â³Â³Â¡Â¥Hxy routingÂ¶Ã‡
 	{
 			directions = routingOddEven(current, source, destination);
 	}
-	else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xy¬Û¦P, z¤è¦V©¹¤W¶Ç
+	else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤WÂ¶Ã‡
 	{	
 		directions.push_back(DIRECTION_UP);
 	}	
-	else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xy¬Û¦P, z¤è¦V©¹¤U¶Ç
+	else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤UÂ¶Ã‡
 	{	
 		directions.push_back(DIRECTION_DOWN);
 	}	
@@ -1592,12 +1498,12 @@ vector<int> NoximRouter::routingDLDR            (const NoximCoord& current, cons
 }
 vector<int> NoximRouter::routingTLAR_DW         (const NoximCoord& current, const NoximCoord& source, const NoximCoord& destination){
 	vector<int> directions;
-	int layer = NoximGlobalParams::mesh_dim_z - 1 ;	//ªí¥Ü¦¹packetÀ³¸Ó¦b­þ­Ólayer°µXY¶Ç»¼
+	int layer = NoximGlobalParams::mesh_dim_z - 1 ;	//ÂªÃ­Â¥ÃœÂ¦Â¹packetÃ€Â³Â¸Ã“Â¦bÂ­Ã¾Â­Ã“layerÂ°ÂµXYÂ¶Ã‡Â»Â¼
 	   if(current.z < layer && (current.x != destination.x || current.y != destination.y) )  
 		{
             directions.push_back(DIRECTION_DOWN);
 		}
-		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//¦b©³³¡¥Hxy routing¶Ç
+		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//Â¦bÂ©Â³Â³Â¡Â¥Hxy routingÂ¶Ã‡
 		{
 			switch (NoximGlobalParams::routing_algorithm){
 			case ROUTING_DLAR : directions = routingOddEven_Z(current, source, destination);break;
@@ -1663,7 +1569,7 @@ vector<int> NoximRouter::routingTLAR_DW_VBDR    (const NoximCoord& current, cons
 				directions = routingXYZ(current, destination);
 			directions.push_back(DIRECTION_DOWN);
 		}
-		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//¦b©³³¡¥Hxy routing¶Ç
+		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//Â¦bÂ©Â³Â³Â¡Â¥Hxy routingÂ¶Ã‡
 		{
 			switch (NoximGlobalParams::routing_algorithm){
 			case ROUTING_DLAR : directions = routingOddEven_Z(current, source, destination);break;
@@ -1671,11 +1577,11 @@ vector<int> NoximRouter::routingTLAR_DW_VBDR    (const NoximCoord& current, cons
 			default           :	directions = routingXYZ      (current,         destination);break;
 			}
 		}
-		else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xy¬Û¦P, z¤è¦V©¹¤W¶Ç
+		else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤WÂ¶Ã‡
 		{	
 			directions.push_back(DIRECTION_UP);
 		}	
-		else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xy¬Û¦P, z¤è¦V©¹¤U¶Ç
+		else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤UÂ¶Ã‡
 		{	
 			directions.push_back(DIRECTION_DOWN);
 		}	
@@ -1715,17 +1621,17 @@ vector<int> NoximRouter::routingTLAR_DW_ODWL_IPD(const NoximCoord& current, cons
 		else 
 			directions.push_back(DIRECTION_DOWN);
 	}
-	else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) ){	//¦b©³³¡¥Hxy routing¶Ç
+	else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) ){	//Â¦bÂ©Â³Â³Â¡Â¥Hxy routingÂ¶Ã‡
 		switch (NoximGlobalParams::routing_algorithm){
 			case ROUTING_DLAR : directions = routingOddEven_Z(current, source, destination);break;
 			case ROUTING_DLADR: directions = routingWestFirst(current,         destination);break;
 			default           :	directions = routingXYZ      (current,         destination);break;
 		}
 	}
-	else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z){	//xy¬Û¦P, z¤è¦V©¹¤W¶Ç
+	else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z){	//xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤WÂ¶Ã‡
 		directions.push_back(DIRECTION_UP);
 	}	
-	else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z){  //xy¬Û¦P, z¤è¦V©¹¤U¶Ç
+	else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z){  //xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤UÂ¶Ã‡
 		directions.push_back(DIRECTION_DOWN);
 	}	
 	else{ 
@@ -1746,7 +1652,7 @@ vector<int> NoximRouter::routingTLAR_DW_ODWL_IPD(const NoximCoord& current, cons
 vector<int> NoximRouter::routingTLAR_DW_ADWL    (const NoximCoord& current, const NoximCoord& source, const NoximCoord& destination){
 	vector<int> directions;
 	int max = 0;
-	int layer = 3;              //ªí¥Ü¦¹packetÀ³¸Ó¦b­þ­Ólayer°µXY¶Ç»¼
+	int layer = 3;              //ÂªÃ­Â¥ÃœÂ¦Â¹packetÃ€Â³Â¸Ã“Â¦bÂ­Ã¾Â­Ã“layerÂ°ÂµXYÂ¶Ã‡Â»Â¼
 	int free_slot[4];
 	NoximNoP_data nop_tmp[4];
 	for( int i = 0 ; i < NoximGlobalParams::mesh_dim_z ; i++ ){
@@ -1780,7 +1686,7 @@ vector<int> NoximRouter::routingTLAR_DW_ADWL    (const NoximCoord& current, cons
 		{
 			directions.push_back(DIRECTION_DOWN);
 		}
-		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//¦b©³³¡¥Hxy routing¶Ç
+		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//Â¦bÂ©Â³Â³Â¡Â¥Hxy routingÂ¶Ã‡
 		{
 			switch (NoximGlobalParams::routing_algorithm){
 			case ROUTING_DLAR : directions = routingOddEven_Z(current, source, destination);break;
@@ -1788,11 +1694,11 @@ vector<int> NoximRouter::routingTLAR_DW_ADWL    (const NoximCoord& current, cons
 			default           :	directions = routingXYZ      (current,         destination);break;
 			}
 		}
-		else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xy¬Û¦P, z¤è¦V©¹¤W¶Ç
+		else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤WÂ¶Ã‡
 		{	
 			directions.push_back(DIRECTION_UP);
 		}	
-		else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xy¬Û¦P, z¤è¦V©¹¤U¶Ç
+		else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤UÂ¶Ã‡
 		{	
 			directions.push_back(DIRECTION_DOWN);
 		}	
@@ -1836,7 +1742,7 @@ vector<int> NoximRouter::routingTLAR_DW_ODWL    (const NoximCoord& current, cons
 			else
 				directions.push_back(DIRECTION_DOWN);
 		}
-		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//¦b©³³¡¥Hxy routing¶Ç
+		else if(current.z >=layer && (current.x != destination.x || current.y != destination.y) )	//Â¦bÂ©Â³Â³Â¡Â¥Hxy routingÂ¶Ã‡
 		{
 			switch (NoximGlobalParams::routing_algorithm){
 			case ROUTING_DLAR : directions = routingOddEven_Z(current, source, destination);break;
@@ -1844,11 +1750,11 @@ vector<int> NoximRouter::routingTLAR_DW_ODWL    (const NoximCoord& current, cons
 			default           :	directions = routingXYZ      (current,         destination);break;
 			}
 		}
-		else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xy¬Û¦P, z¤è¦V©¹¤W¶Ç
+		else if((current.x == destination.x && current.y == destination.y) && current.z > destination.z)	//xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤WÂ¶Ã‡
 		{	
 			directions.push_back(DIRECTION_UP);
 		}	
-		else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xy¬Û¦P, z¤è¦V©¹¤U¶Ç
+		else if((current.x == destination.x && current.y == destination.y) && current.z < destination.z)  //xyÂ¬Ã›Â¦P, zÂ¤Ã¨Â¦VÂ©Â¹Â¤UÂ¶Ã‡
 		{	
 			directions.push_back(DIRECTION_DOWN);
 		}	
@@ -1928,36 +1834,6 @@ void NoximRouter::configure(const int _id,
 	//if( !NoximGlobalParams::buffer_alloc )
 	for (int i = 0; i < DIRECTIONS + 1; i++)
 		buffer[i].SetMaxBufferSize(_max_buffer_size);
-	/*else{
-		int z = id2Coord(_id).z;
-		switch(z){
-			case 0:
-				for (int i = 0; i < 4; i++)
-					buffer[i].SetMaxBufferSize(BUFFER_L_LAYER_0);
-				buffer[DIRECTION_DOWN].SetMaxBufferSize(BUFFER_D_LAYER_0);
-				buffer[DIRECTION_UP  ].SetMaxBufferSize(BUFFER_U_LAYER_0);
-				break;
-			case 1:
-				for (int i = 0; i < 4; i++)
-					buffer[i].SetMaxBufferSize(BUFFER_L_LAYER_1);
-				buffer[DIRECTION_DOWN].SetMaxBufferSize(BUFFER_D_LAYER_1);
-				buffer[DIRECTION_UP  ].SetMaxBufferSize(BUFFER_U_LAYER_1);
-				break;
-			case 2:
-				for (int i = 0; i < 4; i++)
-					buffer[i].SetMaxBufferSize(BUFFER_L_LAYER_2);
-				buffer[DIRECTION_DOWN].SetMaxBufferSize(BUFFER_D_LAYER_2);
-				buffer[DIRECTION_UP  ].SetMaxBufferSize(BUFFER_U_LAYER_2);
-				break;
-			case 3:
-				for (int i = 0; i < 4; i++)
-					buffer[i].SetMaxBufferSize(BUFFER_L_LAYER_3);
-				buffer[DIRECTION_DOWN].SetMaxBufferSize(BUFFER_D_LAYER_3);
-				buffer[DIRECTION_UP  ].SetMaxBufferSize(BUFFER_U_LAYER_3);
-				break;
-		}
-
-	}*/
 }
 
 void NoximRouter::TBDB(float consumption_rate)
@@ -1969,289 +1845,7 @@ void NoximRouter::TBDB(float consumption_rate)
 	float Temp_diff_south = (stats.pre_temperature1 - stats.temperature) - PDT_neighbor[DIRECTION_SOUTH].read();
 	float Temp_diff_up    = (stats.pre_temperature1 - stats.temperature) - PDT_neighbor[DIRECTION_UP].read();
 	float Temp_diff_down  = (stats.pre_temperature1 - stats.temperature) - PDT_neighbor[DIRECTION_DOWN].read();
-/*
-	if(local.x == 4 && local.y == 4 ){    //traffic analysis
-		buffer[DIRECTION_WEST].SetMaxBufferSize(2);
-	}
 
-	if(local.x == 3 && local.y == 3 ){    //traffic analysis
-                buffer[DIRECTION_SOUTH].SetMaxBufferSize(2);
-        }
-
-	if(local.x == 2 && local.y == 4 ){    //traffic analysis
-                buffer[DIRECTION_EAST].SetMaxBufferSize(2);
-        }
-
-	if(local.x == 3 && local.y == 5 ){    //traffic analysis
-                buffer[DIRECTION_NORTH].SetMaxBufferSize(2);
-        }
-	
-	if(local.x == 3 && local.y == 4 ){    //traffic analysis
-		
-		buffer[DIRECTION_NORTH].SetMaxBufferSize(6);
-                buffer[DIRECTION_WEST].SetMaxBufferSize(6);
-		buffer[DIRECTION_SOUTH].SetMaxBufferSize(6);
-		buffer[DIRECTION_EAST].SetMaxBufferSize(6);
-        }
-*/
-/*
-	float Tempdiff[6] = {Temp_diff_east, Temp_diff_west, Temp_diff_north, Temp_diff_south, Temp_diff_up, Temp_diff_down};
-	bubbleSort(Tempdiff, 6);
-	for(int j = 0; j < 6; j++) {
-		buffer[DIRECTION_SOUTH].SetMaxBufferSize(2);
-        }
-*/
-/*
-	int east = 0;
-	int west = 0;
-	int north = 0;
-	int south = 0;
-	int up = 0;
-	int down = 0;
-
-        if(Temp_diff_east > Temp_diff_west){
-		east++;
-		west--;
-	}
-	else{
-		east--;
-		west++;
-	}
-
-	if(Temp_diff_east > Temp_diff_north){
-		east++;
-		north--;
-	}
-	else{
-		east--;
-		north++;
-	}
-
-	if(Temp_diff_east > Temp_diff_south){
-                east++;
-                south--;
-        }
-        else{
-                east--;
-                south++;
-        }
-
-	if(Temp_diff_east > Temp_diff_up){
-                east++;
-                up--;
-        }
-        else{
-                east--;
-                up++;
-        }
-
-	if(Temp_diff_east > Temp_diff_down){
-                east++;
-                down--;
-        }
-        else{
-                east--;
-                down++;
-        }
-//-----------------
-	if(Temp_diff_west > Temp_diff_north){
-                west++;
-                north--;
-        }
-        else{
-                west--;
-                north++;
-        }
-//----------------
-	if(Temp_diff_west > Temp_diff_south){
-                west++;
-                south--;
-        }
-        else{
-                west--;
-                south++;
-        }
-//---------------
-	if(Temp_diff_west > Temp_diff_up){
-                west++;
-                up--;
-        }
-        else{
-                west--;
-                up++;
-        }
-//----------------
-	if(Temp_diff_west > Temp_diff_down){
-                west++;
-                down--;
-        }
-        else{
-                west--;
-                down++;
-        }
-
-//----------------
-//----------------
-
-	if(Temp_diff_north > Temp_diff_south){
-                north++;
-                south--;
-        }
-        else{
-                north--;
-                south++;
-        }
-
-//----------------
-//----------------
-
-        if(Temp_diff_north > Temp_diff_up){
-                north++;
-                up--;
-        }
-        else{
-                north--;
-                up++;
-        }
-
-//----------------
-//----------------
-
-        if(Temp_diff_north > Temp_diff_down){
-                north++;
-                down--;
-        }
-        else{
-                north--;
-                down++;
-        }
-
-//---------------
-//---------------
-//---------------
-
-	if(Temp_diff_south > Temp_diff_down){
-                south++;
-                down--;
-        }
-        else{
-                south--;
-                down++;
-        }
-
-//---------------
-//---------------
-//---------------
-
-        if(Temp_diff_south > Temp_diff_up){
-                south++;
-                up--;
-        }
-        else{
-                south--;
-                up++;
-        }
-
-//---------------
-//---------------
-//---------------
-//---------------
-
-        if(Temp_diff_up > Temp_diff_down){
-                up++;
-                down--;
-        }
-        else{
-                up--;
-                down++;
-        }
-
-if(stats.pre_temperature1 > 98){
-	if(east==5)
-        	buffer[DIRECTION_EAST].SetMaxBufferSize(7);
-	else if(east==3)
-		buffer[DIRECTION_EAST].SetMaxBufferSize(6);
-	else if(east==1)
-                buffer[DIRECTION_EAST].SetMaxBufferSize(5);
-	else if(east==-1)
-                buffer[DIRECTION_EAST].SetMaxBufferSize(4);
-	else if(east==-3)
-                buffer[DIRECTION_EAST].SetMaxBufferSize(3);
-	else if(east==-5)
-                buffer[DIRECTION_EAST].SetMaxBufferSize(2);
-
-	
-	if(south==5)
-                buffer[DIRECTION_SOUTH].SetMaxBufferSize(7);
-        else if(south==3)
-                buffer[DIRECTION_SOUTH].SetMaxBufferSize(6);
-        else if(south==1)
-                buffer[DIRECTION_SOUTH].SetMaxBufferSize(5);
-        else if(south==-1)
-                buffer[DIRECTION_SOUTH].SetMaxBufferSize(4);
-        else if(south==-3)
-                buffer[DIRECTION_SOUTH].SetMaxBufferSize(3);
-        else if(south==-5)
-                buffer[DIRECTION_SOUTH].SetMaxBufferSize(2);
-
-
-
-	if(west==5)
-                buffer[DIRECTION_WEST].SetMaxBufferSize(7);
-        else if(west==3)
-                buffer[DIRECTION_WEST].SetMaxBufferSize(6);
-        else if(west==1)
-                buffer[DIRECTION_WEST].SetMaxBufferSize(5);
-        else if(west==-1)
-                buffer[DIRECTION_WEST].SetMaxBufferSize(4);
-        else if(west==-3)
-                buffer[DIRECTION_WEST].SetMaxBufferSize(3);
-        else if(west==-5)
-                buffer[DIRECTION_WEST].SetMaxBufferSize(2);
-
-	
-	if(north==5)
-                buffer[DIRECTION_NORTH].SetMaxBufferSize(7);
-        else if(north==3)
-                buffer[DIRECTION_NORTH].SetMaxBufferSize(6);
-        else if(north==1)
-                buffer[DIRECTION_NORTH].SetMaxBufferSize(5);
-        else if(north==-1)
-                buffer[DIRECTION_NORTH].SetMaxBufferSize(4);
-        else if(north==-3)
-                buffer[DIRECTION_NORTH].SetMaxBufferSize(3);
-        else if(north==-5)
-                buffer[DIRECTION_NORTH].SetMaxBufferSize(2);
-
-
-	if(up==5)
-                buffer[DIRECTION_UP].SetMaxBufferSize(7);
-        else if(up==3)
-                buffer[DIRECTION_UP].SetMaxBufferSize(6);
-        else if(up==1)
-                buffer[DIRECTION_UP].SetMaxBufferSize(5);
-        else if(up==-1)
-                buffer[DIRECTION_UP].SetMaxBufferSize(4);
-        else if(up==-3)
-                buffer[DIRECTION_UP].SetMaxBufferSize(3);
-        else if(up==-5)
-                buffer[DIRECTION_UP].SetMaxBufferSize(2);
-
-
-	if(down==5)
-                buffer[DIRECTION_DOWN].SetMaxBufferSize(7);
-        else if(down==3)
-                buffer[DIRECTION_DOWN].SetMaxBufferSize(6);
-        else if(down==1)
-                buffer[DIRECTION_DOWN].SetMaxBufferSize(5);
-        else if(down==-1)
-                buffer[DIRECTION_DOWN].SetMaxBufferSize(4);
-        else if(down==-3)
-                buffer[DIRECTION_DOWN].SetMaxBufferSize(3);
-        else if(down==-5)
-                buffer[DIRECTION_DOWN].SetMaxBufferSize(2);
-
-}*/
 
                 if(Temp_diff_east<0){
                 	if(buffer[DIRECTION_EAST].GetMaxBufferSize()>2){
@@ -2327,102 +1921,6 @@ if(stats.pre_temperature1 > 98){
                                 buf_budget--;
                         }
                 }
-		
-/*
-	if(Temp_diff_east<0){
-		if(buffer[DIRECTION_EAST].GetMaxBufferSize()>2)
-			buffer[DIRECTION_EAST].SetMaxBufferSize(buffer[DIRECTION_EAST].GetMaxBufferSize()-1);
-	}
-	if(Temp_diff_east>0){
-		if(buffer[DIRECTION_EAST].GetMaxBufferSize()<8)
-			buffer[DIRECTION_EAST].SetMaxBufferSize(buffer[DIRECTION_EAST].GetMaxBufferSize()+1);
-	}
-	if(Temp_diff_west<0){
-                if(buffer[DIRECTION_WEST].GetMaxBufferSize()>2)
-                        buffer[DIRECTION_WEST].SetMaxBufferSize(buffer[DIRECTION_WEST].GetMaxBufferSize()-1);
-	}
-       	if(Temp_diff_west>0){
-                if(buffer[DIRECTION_WEST].GetMaxBufferSize()<8)
-                        buffer[DIRECTION_WEST].SetMaxBufferSize(buffer[DIRECTION_WEST].GetMaxBufferSize()+1);
-	}
-	if(Temp_diff_north<0){
-                if(buffer[DIRECTION_NORTH].GetMaxBufferSize()>2)
-                        buffer[DIRECTION_NORTH].SetMaxBufferSize(buffer[DIRECTION_NORTH].GetMaxBufferSize()-1);
-	}
-        if(Temp_diff_north>0){
-                if(buffer[DIRECTION_NORTH].GetMaxBufferSize()<8)
-                        buffer[DIRECTION_NORTH].SetMaxBufferSize(buffer[DIRECTION_NORTH].GetMaxBufferSize()+1);
-	}
-	if(Temp_diff_south<0){
-                if(buffer[DIRECTION_SOUTH].GetMaxBufferSize()>2)
-                        buffer[DIRECTION_SOUTH].SetMaxBufferSize(buffer[DIRECTION_SOUTH].GetMaxBufferSize()-1);
-	}
-        if(Temp_diff_south>0){
-                if(buffer[DIRECTION_SOUTH].GetMaxBufferSize()<8)
-                        buffer[DIRECTION_SOUTH].SetMaxBufferSize(buffer[DIRECTION_SOUTH].GetMaxBufferSize()+1);
-	}
-	if(Temp_diff_up<0){
-                if(buffer[DIRECTION_UP].GetMaxBufferSize()>2)
-                        buffer[DIRECTION_UP].SetMaxBufferSize(buffer[DIRECTION_UP].GetMaxBufferSize()-1);
-	}
-        if(Temp_diff_up>0){
-                if(buffer[DIRECTION_UP].GetMaxBufferSize()<8)
-                        buffer[DIRECTION_UP].SetMaxBufferSize(buffer[DIRECTION_UP].GetMaxBufferSize()+1);
-	}
-	if(Temp_diff_down<0){
-                if(buffer[DIRECTION_DOWN].GetMaxBufferSize()>2)
-                        buffer[DIRECTION_DOWN].SetMaxBufferSize(buffer[DIRECTION_DOWN].GetMaxBufferSize()-1);
-	}
-        if(Temp_diff_down>0){
-                if(buffer[DIRECTION_DOWN].GetMaxBufferSize()<8)
-                        buffer[DIRECTION_DOWN].SetMaxBufferSize(buffer[DIRECTION_DOWN].GetMaxBufferSize()+1);
-	}
-
-*/
-
-/*
-	cout<<"Router:"<<local.x<<local.y<<local.z;
-	cout<<"Temp_diff_east:"<<Temp_diff_east<<" buf_east:"<<buffer[DIRECTION_EAST].GetMaxBufferSize()<<endl;
-	
-	cout<<"Router:"<<local.x<<local.y<<local.z;
-        cout<<"Temp_diff_west:"<<Temp_diff_west<<" buf_west:"<<buffer[DIRECTION_WEST].GetMaxBufferSize()<<endl;
-
-	cout<<"Router:"<<local.x<<local.y<<local.z;
-        cout<<"Temp_diff_north:"<<Temp_diff_north<<" buf_north:"<<buffer[DIRECTION_NORTH].GetMaxBufferSize()<<endl;
-
-	cout<<"Router:"<<local.x<<local.y<<local.z;
-        cout<<"Temp_diff_south:"<<Temp_diff_south<<" buf_south:"<<buffer[DIRECTION_SOUTH].GetMaxBufferSize()<<endl;
-
-	cout<<"Router:"<<local.x<<local.y<<local.z;
-        cout<<"Temp_diff_up:"<<Temp_diff_up<<" buf_up:"<<buffer[DIRECTION_UP].GetMaxBufferSize()<<endl;
-
-	cout<<"Router:"<<local.x<<local.y<<local.z;
-        cout<<"Temp_diff_down:"<<Temp_diff_down<<" buf_down:"<<buffer[DIRECTION_DOWN].GetMaxBufferSize()<<end	
-	if(MTTT[local.x][local.y][local.z] < 2){
-		
-                int buffer_dep;
-
-                buffer_dep = ceil(NoximGlobalParams::buffer_depth*MTTT[local.x][local.y][local.z]);
-                if(buffer_dep > NoximGlobalParams::buffer_depth)
-                        buffer_dep =  NoximGlobalParams::buffer_depth;
-                else if(buffer_dep < 1)
-                        buffer_dep = 1;
-
-                for (int i = 0; i < DIRECTIONS+2; i++)
-                           buffer[i].SetMaxBufferSize(buffer_dep);
-		
-		for (int i = 0; i < DIRECTIONS+2; i++)
-                        if(buffer[i].GetMaxBufferSize()>2)
-                           buffer[i].SetMaxBufferSize(buffer[i].GetMaxBufferSize()-2);
-        }
-	else{
-		for (int i = 0; i < DIRECTIONS+2; i++)
-                        if(buffer[i].GetMaxBufferSize()<8)
-                           buffer[i].SetMaxBufferSize(buffer[i].GetMaxBufferSize()+2);
-	
-	}
-	*/
-
 	
 
 }
@@ -2531,7 +2029,7 @@ int NoximRouter::getNeighborId(int _id, int direction) const
     return coord2Id(my_coord);
 }
 
-void NoximRouter::TraffThrottlingProcess()	//­Y¦bemergency mode, ¥Btraffic¶W¹Ltraffic quota, «hthrottle
+void NoximRouter::TraffThrottlingProcess()	//Â­YÂ¦bemergency mode, Â¥BtrafficÂ¶WÂ¹Ltraffic quota, Â«hthrottle
 {
 
 	NoximCoord local = id2Coord(local_id);
@@ -2564,73 +2062,27 @@ void NoximRouter::TraffThrottlingProcess()	//­Y¦bemergency mode, ¥Btraffic¶W¹Ltr
                         buf[6][i].write(100);
                         buf[7][i].write(100);
 		}else{
-		/*	
-			if(MTTT[local.x][local.y][local.z] < 0.5 && MTTT[local.x][local.y][local.z] != 0){
-                        	if(RST<4)
-                        	        RST++;
-                	}
-                	else{
-                        	if(RST>0)
-                                	RST--;
-                	}
-		*/
-		//if(buffer[DIRECTION_SOUTH].IsEmpty())
-		//	buf[0][i].write(RST + buffer[DIRECTION_SOUTH].GetMaxBufferSize());
-		//else
+
 			buf[0][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_SOUTH].Size());//buffer[DIRECTION_SOUTH].GetMaxBufferSize());
-		
-		//if(buffer[DIRECTION_WEST].IsEmpty())
-		//	buf[1][i].write(RST + buffer[DIRECTION_WEST].GetMaxBufferSize());
-		//else
+
 			buf[1][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_WEST].Size());//buffer[DIRECTION_WEST].GetMaxBufferSize());
 
-		//if(buffer[DIRECTION_NORTH].IsEmpty())
-		//	buf[2][i].write(RST + buffer[DIRECTION_NORTH].GetMaxBufferSize());
-		//else
 			buf[2][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_NORTH].Size());//buffer[DIRECTION_NORTH].GetMaxBufferSize());
 
-		//if(buffer[DIRECTION_EAST].IsEmpty())
-		//	buf[3][i].write(RST + buffer[DIRECTION_EAST].GetMaxBufferSize());
-		//else
 			buf[3][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_EAST].Size());//buffer[DIRECTION_EAST].GetMaxBufferSize());
 
-		//if(buffer[DIRECTION_DOWN].IsEmpty())
-		//	buf[4][i].write(RST + buffer[DIRECTION_DOWN].GetMaxBufferSize());
-		//else
 			buf[4][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_DOWN].Size());//buffer[DIRECTION_DOWN].GetMaxBufferSize());
 
-		//if(buffer[DIRECTION_UP].IsEmpty())
-		//	buf[5][i].write(RST + buffer[DIRECTION_UP].GetMaxBufferSize());
-		//else
 			buf[5][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_UP].Size());//buffer[DIRECTION_UP].GetMaxBufferSize());
 
-		//if(buffer[DIRECTION_LOCAL].IsEmpty())
-		//	buf[6][i].write(RST + buffer[DIRECTION_LOCAL].GetMaxBufferSize());
-		//else
 			buf[6][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_LOCAL].Size());//buffer[DIRECTION_LOCAL].GetMaxBufferSize());
 
-		//if(buffer[DIRECTION_SEMI_LOCAL].IsEmpty())
-		//	buf[7][i].write(RST + buffer[DIRECTION_SEMI_LOCAL].GetMaxBufferSize());
-		//else
 			buf[7][i].write((1+RST*0.125) + (1+RST*0.125)*buffer[DIRECTION_SEMI_LOCAL].Size());//buffer[DIRECTION_SEMI_LOCAL].GetMaxBufferSize());
 
 		}
 
-		/*		
-		if(MTTT[local.x][local.y][local.z] < 0.5 && MTTT[local.x][local.y][local.z] != 0){
-			if(RST<4)
-				RST++;
-		}
-		else{
-			if(RST>0)
-				RST--;
-		}
-		*/
-		//free_slots_PE[i].write( free_slots_neighbor[i]);
 	}
-	//for(int i=0; i<8; i++)
-	//RCA_PE[i] = RCA_data_in[i];
-	// free_slots_PE[i].write( free_slots_neighbor[i]);
+
 }
 
 void NoximRouter::IntoEmergency(){

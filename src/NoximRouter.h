@@ -51,28 +51,7 @@ SC_MODULE(NoximRouter)
 
 	sc_out <float>buf[DIRECTIONS+2]             [DIRECTIONS];                                  // Information to neighbor router buf0 
         sc_in  <float>buf_neighbor[DIRECTIONS+2]    [DIRECTIONS];	
-/*
-	sc_out <float>buf[1]             [DIRECTIONS];                                  // Information to neighbor router buf1
-        sc_in  <float>buf_neighbor[1]    [DIRECTIONS];
-
-	sc_out <float>buf[2]             [DIRECTIONS];                                  // Information to neighbor router buf2 
-        sc_in  <float>buf_neighbor[2]    [DIRECTIONS];
-
-	sc_out <float>buf[3]             [DIRECTIONS];                                  // Information to neighbor router buf3
-        sc_in  <float>buf_neighbor[3]    [DIRECTIONS];
-
-	sc_out <float>buf[4]             [DIRECTIONS];                                  // Information to neighbor router buf4 
-        sc_in  <float>buf_neighbor[4]    [DIRECTIONS];
-
-	sc_out <float>buf[5]             [DIRECTIONS];                                  // Information to neighbor router buf5 
-        sc_in  <float>buf_neighbor[5]    [DIRECTIONS];
-
-	sc_out <float>buf[6]             [DIRECTIONS];                                  // Information to neighbor router buf6 
-        sc_in  <float>buf_neighbor[6]    [DIRECTIONS];
-
-	sc_out <float>buf[7]             [DIRECTIONS];                                  // Information to neighbor router buf7 
-        sc_in  <float>buf_neighbor[7]    [DIRECTIONS];
-*/	
+        
 	/*******RCA******/
 	// Derek------------------------
 	sc_out<int>       RCA_data_out[8];
