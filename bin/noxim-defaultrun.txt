@@ -1,0 +1,31 @@
+
+		Noxim - the NoC Simulator
+		(C) University of Catania
+
+Running with default parameters (use '-help' option to see how to override them)
+Start buildMesh...
+Making new directory results/TEMP
+Reset... done! Now running for 10000 cycles...
+Calculate SteadyTemp at 10000
+Noxim simulation completed.
+ ( 10002 cycles executed)
+% Total received packets: 25464
+% Total received flits: 203608
+% Global average delay (cycles): 17.3442
+% Global average throughput (flits/cycle): 0.382483
+% Throughput (flits/cycle/IP): 0.0795423
+% Max delay (cycles): 64
+% Total energy (J): 0.0161296
+% Avg power (J/cycle): 1.61296e-06
+% Avg power per router (J/cycle): 6.30062e-09
+% Avg waiting time in each buffer (cycles): 10.1283
+% Layer average delay (cycles): 17.8845  16.7912  16.9324  17.7808  
+% Layer energy (J): 0.00342456  0.00397343  0.00425851  0.00447308  
+% Layer Routed flits: 305071  403228  428536  397149  
+% Layer Routed flits[0]: 53735   67212   72215   75461  
+% Layer Routed flits[1]: 69223   66306   67597   66914  
+% Layer Routed flits[2]: 52929   64507   71358   76689  
+% Layer Routed flits[3]: 39798   65090   76762   88316  
+% Layer Routed flits[4]:     0   38441   50399   38297  
+% Layer Routed flits[5]: 38374   51016   39366       0  
+% Layer Routed flits[6]: 51012   50656   50839   51472  

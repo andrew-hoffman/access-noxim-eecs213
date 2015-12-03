@@ -1,0 +1,53 @@
+#Steady State Temp.
+XY0 = [
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+0	0	0	0	0	0	0	0	0
+]
+XY1 = [
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+0	0	0	0	0	0	0	0	0
+]
+XY2 = [
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+0	0	0	0	0	0	0	0	0
+]
+XY3 = [
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+-nan	-nan	-nan	-nan	-nan	-nan	-nan	-nan	0
+0	0	0	0	0	0	0	0	0
+]
+color_range = [80 110];
+figure(1)
+subplot(4,1,1), pcolor(XY0), axis off, caxis( color_range ), colormap(jet)
+subplot(4,1,2), pcolor(XY1), axis off, caxis( color_range ), colormap(jet)
+subplot(4,1,3), pcolor(XY2), axis off, caxis( color_range ), colormap(jet)
+subplot(4,1,4), pcolor(XY3), axis off, caxis( color_range ), colormap(jet)
+set(gcf, 'PaperPosition', [1 1 7 30]);
+print(gcf,'-djpeg','-r0','SS_DLADR_sel-0_BL_pir-0.010000_traffic-0.txt-10000.jpg')

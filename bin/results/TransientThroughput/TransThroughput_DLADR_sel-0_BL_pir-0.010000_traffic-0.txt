@@ -1,0 +1,1 @@
+Cycle 	RecivedFlits 	Throughput 	Throt. Num. 	Max. Temp.	Adaptive 	DOR 	DW 	Mid_Adaptive 	Mid_DOR 	Mid_DW 	Beltway

@@ -1,0 +1,72 @@
+# Layer 0: Silicon
+0
+Y
+Y
+1.75e+06
+0.01
+0.00015
+mesh3d_0.flp
+
+# Layer 1: thermal interface material (TIM)
+1
+Y
+N
+4e+06
+0.25
+2e-05
+mesh3d_0.flp
+
+# Layer 2: Silicon
+2
+Y
+Y
+1.75e+06
+0.01
+0.00015
+mesh3d_1.flp
+
+# Layer 3: thermal interface material (TIM)
+3
+Y
+N
+4e+06
+0.25
+2e-05
+mesh3d_1.flp
+
+# Layer 4: Silicon
+4
+Y
+Y
+1.75e+06
+0.01
+0.00015
+mesh3d_2.flp
+
+# Layer 5: thermal interface material (TIM)
+5
+Y
+N
+4e+06
+0.25
+2e-05
+mesh3d_2.flp
+
+# Layer 6: Silicon
+6
+Y
+Y
+1.75e+06
+0.01
+0.00015
+mesh3d_3.flp
+
+# Layer 7: thermal interface material (TIM)
+7
+Y
+N
+4e+06
+0.25
+2e-05
+mesh3d_3.flp
+
